@@ -1,8 +1,5 @@
 import json
 import logging
-
-from pyexpat.errors import messages
-from rich.diagnose import report
 from telegram import Update, InputFile, InputMedia, InputMediaPhoto
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, filters, MessageHandler
 from modules.downloader import *

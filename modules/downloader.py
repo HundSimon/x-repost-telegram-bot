@@ -1,10 +1,6 @@
 import urllib
-
 import requests
 import re
-import tweepy
-from bs4 import BeautifulSoup
-from markdown_it.rules_inline import image
 
 def downloader(url):
     if url.startswith("https://x.com"):
@@ -50,6 +46,4 @@ def extract_username(url):
         return None
 
 if __name__ == "__main__":
-    url = "https://x.com/rinjiro3/status/1684212088611250176"
-    username = extract_username(url)
-    print(f"[Repost from @{username}]({url})")
+    pass
