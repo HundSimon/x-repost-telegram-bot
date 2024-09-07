@@ -36,6 +36,7 @@ def x_downloader(url):
     if len(path_components) > 1:
         username = path_components[1]
 
+    username = convert_special_chars(username)
     return image_dict, username
 
 def pixiv_downloader(url):

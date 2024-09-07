@@ -3,6 +3,30 @@ import urllib
 
 import requests
 
+def convert_special_chars(text: str) -> str:
+    _special_chars = {
+        '_': '\\_',
+        '*': '\\*',
+        '[': '\\[',
+        ']': '\\]',
+        '(': '\\(',
+        ')': '\\)',
+        '~': '\\~',
+        '`': '\\`',
+        '>': '\\>',
+        '#': '\\#',
+        '+': '\\+',
+        '-': '\\-',
+        '=': '\\=',
+        '|': '\\|',
+        '{': '\\{',
+        '}': '\\}',
+        '.': '\\.',
+        '!': '\\!'
+    }
+    for char, escaped_char in _special_chars.items():
+        text = text.replace(char, escaped_char)
+    return text
 
 def extract_username(url):
     if url.startswith("https://pixiv.net/artworks/"):
