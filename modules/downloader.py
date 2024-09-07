@@ -1,62 +1,85 @@
-import json
-import urllib
-import requests
 import re
-from pixivpy3 import *
-from .utils import *
+import json
+import requests
+import urllib.parse
+from pixivpy3 import AppPixivAPI
+from .utils import convert_special_chars, refresh_access_token
+
 
 def downloader(url):
+    """
+    Determines the type of URL and calls the appropriate downloader function.
+    """
     if url.startswith("https://x.com"):
         return x_downloader(url)
     elif url.startswith("https://www.pixiv.net"):
         return pixiv_downloader(url)
+    else:
+        raise ValueError("Unsupported URL")
+
 
 def x_downloader(url):
-    image_dict = []
+    """
+    Downloads images from x.com using the fxtwitter mirror.
+    """
+    image_list = []
     fxtwitter_url = re.sub(r"x\.com", "d.fxtwitter.com", url)
     image_index = 1
 
     while True:
-        image_url = fxtwitter_url + "/photo/" + str(image_index)
+        image_url = f"{fxtwitter_url}/photo/{image_index}"
         response = requests.get(image_url)
 
         if response.status_code == 200:
-            orig_image_url = response.url + "?name=orig"
-            image_dict.append(orig_image_url)
-            if orig_image_url == image_dict[0] and image_index > 1:
-                image_dict.pop(-1)
+            orig_image_url = f"{response.url}?name=orig"
+            image_list.append(orig_image_url)
+
+            # Break the loop if the same image URL repeats (to avoid duplicates) TODO: Better way to handle this?
+            if orig_image_url == image_list[0] and image_index > 1:
+                image_list.pop()
                 break
             image_index += 1
         else:
             break
 
-    # Get username
+    # Extract username from URL
     parsed_url = urllib.parse.urlparse(url)
     path_components = parsed_url.path.split('/')
-    if len(path_components) > 1:
-        username = path_components[1]
+    username = convert_special_chars(path_components[1]) if len(path_components) > 1 else "Unknown"
 
-    username = convert_special_chars(username)
-    return image_dict, username
+    return image_list, username
+
 
 def pixiv_downloader(url):
-    image_dict = []
+    """
+    Downloads images from Pixiv using the Pixiv API.
+    """
+    image_list = []
+
+    # Load configuration and refresh access token
     with open('./config.json', 'r', encoding='utf-8') as configFile:
         config = json.load(configFile)
         config["PIXIV_ACCESS_TOKEN"] = refresh_access_token(config["PIXIV_REFRESH_TOKEN"])
 
     illust_id = url.split('/')[-1]
     api = AppPixivAPI()
-    api.set_auth(access_token=config["PIXIV_ACCESS_TOKEN"], refresh_token=config["PIXIV_REFRESH_TOKEN"])
-    image_urls = api.illust_detail(illust_id).illust.image_urls
+    api.set_auth(
+        access_token=config["PIXIV_ACCESS_TOKEN"],
+        refresh_token=config["PIXIV_REFRESH_TOKEN"]
+    )
 
+    # Fetch image URLs and select the best quality image
+    illust_detail = api.illust_detail(illust_id).illust
+    image_urls = illust_detail.image_urls
     best_quality_image = image_urls[list(image_urls.keys())[-1]]
-    image_dict.append(best_quality_image)
 
-    # Get username
-    username = api.illust_detail(illust_id).illust.user.name
+    image_list.append(best_quality_image)
 
-    return image_dict, username
+    # Extract username
+    username = illust_detail.user.name
+
+    return image_list, username
+
 
 if __name__ == "__main__":
     pass

@@ -1,6 +1,4 @@
-import json
 import urllib
-
 import requests
 
 def convert_special_chars(text: str) -> str:
