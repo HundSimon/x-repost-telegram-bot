@@ -3,7 +3,7 @@ import json
 import requests
 import urllib.parse
 from pixivpy3 import AppPixivAPI
-from .utils import convert_special_chars, refresh_access_token
+from modules.utils import convert_special_chars, refresh_access_token
 
 
 def downloader(url):
@@ -14,13 +14,15 @@ def downloader(url):
         return x_downloader(url)
     elif url.startswith("https://www.pixiv.net"):
         return pixiv_downloader(url)
+    elif url.startswith("https://kemono.su"):
+        return kemonosu_downloader(url)
     else:
         raise ValueError("Unsupported URL")
 
 
 def x_downloader(url):
     """
-    Downloads images from x.com using the fxtwitter mirror.
+    Downloads images from x.com using the fxtwitter.com mirror.
     """
     image_list = []
     fxtwitter_url = re.sub(r"x\.com", "d.fxtwitter.com", url)
@@ -52,7 +54,7 @@ def x_downloader(url):
 
 def pixiv_downloader(url):
     """
-    Downloads images from Pixiv using the Pixiv API.
+    Downloads images from Pixiv.net using the Pixiv API.
     """
     image_list = []
 
@@ -80,6 +82,32 @@ def pixiv_downloader(url):
 
     return image_list, username
 
+def kemonosu_downloader(url):
+    """
+    Downloads images from Kemono.su using the Kemono.su API.
+    """
+    image_list = []
+
+    parsed_url = urllib.parse.urlparse(url)
+    path_components = parsed_url.path.strip('/').split('/')
+    _service = path_components[0]
+    _user_id = path_components[2]
+    _post_id = path_components[4]
+
+    post_api_url = f"https://kemono.su/api/v1/{_service}/user/{_user_id}/post/{_post_id}"
+    post_response = requests.get(post_api_url)
+    post_data = post_response.json()
+    image_list.append("https://kemono.su" + post_data['file']['path'])
+    for attachment in post_data['attachments']:
+        image_list.append("https://kemono.su" + attachment['path'])
+
+    # Get username
+    user_api_url = f"https://kemono.su/api/v1/{_service}/user/{_user_id}/profile"
+    user_response = requests.get(user_api_url)
+    user_data = user_response.json()
+    username = user_data['name']
+
+    return image_list, username
 
 if __name__ == "__main__":
     pass

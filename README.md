@@ -10,8 +10,10 @@ TBD
 
 ## TODO
 
+- [ ] Error handling
 - [ ] X video reposting
 - [ ] Pixiv multi-image reposting
 - [ ] e621 support
 - [ ] furryaffinity support
 - [ ] e-hentai support
+- [x] kemono.su support
