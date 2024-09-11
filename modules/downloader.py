@@ -72,10 +72,15 @@ def pixiv_downloader(url):
 
     # Fetch image URLs and select the best quality image
     illust_detail = api.illust_detail(illust_id).illust
-    image_urls = illust_detail.image_urls
-    best_quality_image = image_urls[list(image_urls.keys())[-1]]
+    image_list = [item['image_urls']['original'] for item in illust_detail.meta_pages]
+    if not image_list:
+        # If no meta_pages, use the original image URL
+        image_urls = illust_detail.image_urls
+        best_quality_image = image_urls[list(image_urls.keys())[-1]]
+        image_list.append(best_quality_image)
+    else:
+        pass
 
-    image_list.append(best_quality_image)
 
     # Extract username
     username = illust_detail.user.name
