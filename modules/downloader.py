@@ -4,6 +4,7 @@ import requests
 import urllib.parse
 from pixivpy3 import AppPixivAPI
 from modules.utils import convert_special_chars, refresh_access_token
+import e621py_wrapper as e621
 
 
 def downloader(url):
@@ -16,6 +17,8 @@ def downloader(url):
         return pixiv_downloader(url)
     elif url.startswith("https://kemono.su"):
         return kemonosu_downloader(url)
+    elif url.startswith("https://e621.net"):
+        return e621_downloader(url)
     else:
         raise ValueError("Unsupported URL")
 
@@ -111,6 +114,35 @@ def kemonosu_downloader(url):
     user_response = requests.get(user_api_url)
     user_data = user_response.json()
     username = user_data['name']
+
+    return image_list, username
+
+def e621_downloader(url):
+    """
+    Downloads images from e621.net using the e621 API.
+    """
+    image_list = []
+
+    client = e621.client()
+
+    parsed_url = urllib.parse.urlparse(url)
+    path_components = parsed_url.path.strip('/').split('/')
+    _image_type = path_components[0]
+    image_id = path_components[1]
+
+    if _image_type == "posts":
+        image_url = client.posts.get(image_id)[0]["file"]["url"]
+        image_list.append(image_url)
+    elif _image_type == "pools":
+        image_ids = client.pools.get(image_id)[0]["post_ids"]
+        for image_id in image_ids:
+            image_link = client.posts.get(image_id)[0]["file"]["url"]
+            image_list.append(image_link)
+    else:
+        raise ValueError("Unsupported e621 URL")
+
+    # Get username
+    username = client.posts.get(image_id)[0]["tags"]["artist"][0]
 
     return image_list, username
 

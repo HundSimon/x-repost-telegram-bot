@@ -1,3 +1,4 @@
+e621py_wrapper==0.1.10
 pixivpy3==3.7.5
 python-telegram-bot==21.5
 Requests==2.32.3
