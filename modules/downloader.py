@@ -109,6 +109,9 @@ def kemonosu_downloader(url):
     for attachment in post_data['attachments']:
         image_list.append("https://kemono.su" + attachment['path'])
 
+    image_list = list(dict.fromkeys(image_list))
+
+
     # Get username
     user_api_url = f"https://kemono.su/api/v1/{_service}/user/{_user_id}/profile"
     user_response = requests.get(user_api_url)
