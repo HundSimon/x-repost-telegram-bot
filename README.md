@@ -38,7 +38,7 @@ python main.py
 ## TODO
 
 - [ ] Error handling
-- [ ] X video reposting
+- [x] X video reposting
 - [x] Pixiv multi-image reposting
 - [ ] e621 support
 - [ ] furryaffinity support

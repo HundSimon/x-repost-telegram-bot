@@ -1,6 +1,20 @@
 import urllib
 import requests
 
+
+def get_media_type(url):
+    # Use a HEAD request to get the content type without downloading the entire file
+    response = requests.head(url)
+    content_type = response.headers.get('Content-Type', '').lower()
+
+    if 'image' in content_type:
+        return "image"
+    elif 'video' in content_type:
+        return "video"
+    else:
+        return "unknown"
+
+
 def convert_special_chars(text: str) -> str:
     _special_chars = {
         '_': '\\_',
@@ -26,6 +40,7 @@ def convert_special_chars(text: str) -> str:
         text = text.replace(char, escaped_char)
     return text
 
+
 def extract_username(url):
     if url.startswith("https://pixiv.net/artworks/"):
         pass
@@ -40,6 +55,7 @@ def extract_username(url):
             return None
     else:
         return None
+
 
 def refresh_access_token(refresh_token):
     USER_AGENT = "PixivAndroidApp/5.0.234 (Android 11; Pixel 5)"
@@ -61,6 +77,7 @@ def refresh_access_token(refresh_token):
         headers={"User-Agent": USER_AGENT},
     )
     return response.json()["access_token"]
+
 
 if __name__ == "__main__":
     print(extract_username())

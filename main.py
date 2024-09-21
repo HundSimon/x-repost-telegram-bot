@@ -2,7 +2,7 @@ import logging
 from telegram import Update, InputMediaPhoto, InputMediaVideo
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, filters, MessageHandler
 from modules.downloader import *
-from modules.utils import convert_special_chars
+from modules.utils import convert_special_chars, get_media_type
 
 # Configure logging
 logging.basicConfig(
@@ -38,7 +38,15 @@ async def repost(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
         image_urls, username = downloader(url)
-        media_group = [InputMediaPhoto(media=url) for url in image_urls]
+        media_group = []
+
+        for url in image_urls:
+            media_type = get_media_type(url)
+            if media_type == "image":
+                media_group.append(InputMediaPhoto(media=url))
+            elif media_type == "video":
+                media_group.append(InputMediaVideo(media=url))
+
         await context.bot.send_media_group(
             chat_id=config["TELEGRAM_CHANNEL_ID"],
             media=media_group,
