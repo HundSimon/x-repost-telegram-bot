@@ -1,9 +1,8 @@
-import re
 import json
 import requests
 import urllib.parse
 from pixivpy3 import AppPixivAPI
-from modules.utils import convert_special_chars, refresh_access_token
+from modules.utils import  refresh_access_token
 import e621py_wrapper as e621
 
 
@@ -25,34 +24,22 @@ def downloader(url):
 
 def x_downloader(url):
     """
-    Downloads images from x.com using the fxtwitter.com mirror.
+    Downloads images from x.com using the x.com API.
     """
-    image_list = []
-    fxtwitter_url = re.sub(r"x\.com", "d.fxtwitter.com", url)
-    image_index = 1
 
-    while True:
-        image_url = f"{fxtwitter_url}/photo/{image_index}"
-        response = requests.get(image_url)
+    api_url = url.replace("https://x.com", "https://api.vxtwitter.com")
 
-        if response.status_code == 200:
-            orig_image_url = f"{response.url}?name=orig"
-            image_list.append(orig_image_url)
+    response = requests.get(api_url)
+    if response.status_code != 200:
+        raise Exception(f"Failed to fetch data from {api_url}. Status code: {response.status_code}")
 
-            # Break the loop if the same image URL repeats (to avoid duplicates) TODO: Better way to handle this?
-            if orig_image_url == image_list[0] and image_index > 1:
-                image_list.pop()
-                break
-            image_index += 1
-        else:
-            break
+    data = response.json()
 
-    # Extract username from URL
-    parsed_url = urllib.parse.urlparse(url)
-    path_components = parsed_url.path.split('/')
-    username = convert_special_chars(path_components[1]) if len(path_components) > 1 else "Unknown"
+    username = data.get("user_name")
+    media_urls = data.get("mediaURLs", [])
+    media_list = [url + "?name=orig" for url in media_urls]
 
-    return image_list, username
+    return media_list, username
 
 
 def pixiv_downloader(url):
@@ -84,11 +71,11 @@ def pixiv_downloader(url):
     else:
         pass
 
-
     # Extract username
     username = illust_detail.user.name
 
     return image_list, username
+
 
 def kemonosu_downloader(url):
     """
@@ -111,7 +98,6 @@ def kemonosu_downloader(url):
 
     image_list = list(dict.fromkeys(image_list))
 
-
     # Get username
     user_api_url = f"https://kemono.su/api/v1/{_service}/user/{_user_id}/profile"
     user_response = requests.get(user_api_url)
@@ -119,6 +105,7 @@ def kemonosu_downloader(url):
     username = user_data['name']
 
     return image_list, username
+
 
 def e621_downloader(url):
     """
@@ -149,5 +136,6 @@ def e621_downloader(url):
 
     return image_list, username
 
+
 if __name__ == "__main__":
-    pass
+    print(downloader("https://kemono.su/patreon/user/20273175/post/110631340"))

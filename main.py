@@ -1,8 +1,8 @@
-import json
 import logging
-from telegram import Update, InputMediaPhoto
+from telegram import Update, InputMediaPhoto, InputMediaVideo
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, filters, MessageHandler
 from modules.downloader import *
+from modules.utils import convert_special_chars
 
 # Configure logging
 logging.basicConfig(
@@ -13,6 +13,7 @@ logging.basicConfig(
 # Load configuration from JSON file
 with open('config.json', 'r', encoding='utf-8') as configFile:
     config = json.load(configFile)
+
 
 # Handler functions
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -27,6 +28,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             text="You are not authorized to use this bot"
         )
 
+
 async def repost(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id == config["TELEGRAM_ADMIN_ID"]:
         url = update.message.text
@@ -40,7 +42,7 @@ async def repost(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_media_group(
             chat_id=config["TELEGRAM_CHANNEL_ID"],
             media=media_group,
-            caption=f"[Repost from @{username}]({url})",
+            caption=f"[Repost from @{convert_special_chars(username)}]({url})",
             parse_mode="MarkdownV2"
         )
     else:
@@ -49,11 +51,13 @@ async def repost(update: Update, context: ContextTypes.DEFAULT_TYPE):
             text="You are not authorized to use this bot"
         )
 
+
 async def get_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
         text=update.effective_chat.id
     )
+
 
 # Main entry point
 if __name__ == '__main__':
