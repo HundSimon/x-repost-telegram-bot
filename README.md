@@ -40,7 +40,7 @@ python main.py
 - [ ] Error handling
 - [x] X video reposting
 - [x] Pixiv multi-image reposting
-- [ ] e621 support
+- [x] e621 support
 - [ ] furryaffinity support
 - [ ] e-hentai support
 - [x] kemono.su support
