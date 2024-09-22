@@ -37,10 +37,11 @@ python main.py
 
 ## TODO
 
-- [ ] Error handling
+- [x] Error handling
 - [x] X video reposting
 - [x] Pixiv multi-image reposting
 - [x] e621 support
+- [ ] Better async
 - [ ] furryaffinity support
 - [ ] e-hentai support
 - [x] kemono.su support
