@@ -70,11 +70,11 @@ def pixiv_downloader(url):
 
         # Fetch image URLs and select the best quality image
         illust_detail = api.illust_detail(illust_id).illust
-        image_list = [item['image_urls']['original'] for item in illust_detail.meta_pages]
+        image_list = [item['image_urls']['original'].replace('i.pximg.net', 'i.pixiv.re') for item in illust_detail.meta_pages]
         if not image_list:
             # If no meta_pages, use the original image URL
             image_urls = illust_detail.image_urls
-            best_quality_image = image_urls[list(image_urls.keys())[-1]]
+            best_quality_image = image_urls[list(image_urls.keys())[-1]].replace('i.pximg.net', 'i.pixiv.re')
             image_list.append(best_quality_image)
         else:
             pass
@@ -160,7 +160,4 @@ def e621_downloader(url):
 
 
 if __name__ == "__main__":
-    try:
-        print(downloader("https://kemono.su/patreon/user/20273175/post/110631340"))
-    except Exception as e:
-        print(f"Error in main: {e}")
+    pass
