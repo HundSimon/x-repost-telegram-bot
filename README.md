@@ -6,6 +6,8 @@ Currently, supports reposting from: X(Twitter) & Pixiv & kemono.su
 
 ## Deployment
 
+0. Use python 3.11 or before because distutils has been removed from Python 3.12
+
 1. Clone the repository
 ```bash
 git clone https://github.com/HundSimon/x-repost-telegram-bot.git
